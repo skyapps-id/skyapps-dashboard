@@ -1,8 +1,17 @@
 "use client";
 
-import { Card, Typography, Tag, Space } from "antd";
+import { Card, Typography, Tag, Divider } from "antd";
 
 const { Text } = Typography;
+
+const rows = [
+  ["Model", "SolarMax Pro 15K"],
+  ["Serial Number", "INV-2024-0158"],
+  ["Firmware", "v3.2.1"],
+  ["Operating Hours", "12,458 hrs"],
+  ["Temperature", "42°C"],
+  ["Status", "Normal Operation", "green"],
+];
 
 export default function InverterInfo() {
   return (
@@ -19,18 +28,26 @@ export default function InverterInfo() {
         },
       }}
     >
-      <Space orientation="vertical" size={12} style={{ width: "100%" }}>
-        <InfoRow label="Model" value="SolarMax Pro 15K" />
-        <InfoRow label="Serial Number" value="INV-2024-0158" />
-        <InfoRow label="Firmware" value="v3.2.1" />
-        <InfoRow label="Operating Hours" value="12,458 hrs" />
-        <InfoRow label="Temperature" value="42°C" />
-        <InfoRow
-          label="Status"
-          value="Normal Operation"
-          valueColor="green"
-        />
-      </Space>
+      <div>
+        {rows.map(([label, value, color], index) => (
+          <div key={label}>
+            <InfoRow
+              label={label}
+              value={value}
+              valueColor={color}
+            />
+
+            {index < rows.length - 1 && (
+              <Divider
+                style={{
+                  margin: "14px 0",
+                  borderColor: "#f0f0f0",
+                }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </Card>
   );
 }
@@ -49,6 +66,8 @@ function InfoRow({
       style={{
         display: "flex",
         justifyContent: "space-between",
+        alignItems: "center",
+        margin: "8px 0",
       }}
     >
       <Text type="secondary">{label}</Text>
