@@ -2,7 +2,18 @@ import { Card, Row, Col } from "antd";
 
 export default function CellVoltages() {
   return (
-    <Card title="Cell Voltages">
+    <Card
+      title="Cell Voltages"
+      style={{ height: "100%", width: "100%" }}
+      styles={{
+        body: {
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        },
+      }}
+    >
       <Row gutter={[12, 12]}>
         {Array.from({ length: 16 }).map((_, i) => (
           <Col xs={12} md={6} key={i}>

@@ -6,7 +6,18 @@ const { Text } = Typography;
 
 export default function PerformanceMetrics() {
   return (
-    <Card title="Performance Metrics">
+    <Card
+      title="Performance Metrics"
+      style={{ height: "100%", width: "100%" }}
+      styles={{
+        body: {
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        },
+      }}
+    >
       <Space orientation="vertical" size={16} style={{ width: "100%" }}>
         <Metric
           label="AC Output Power"

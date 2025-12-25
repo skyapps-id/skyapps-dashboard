@@ -9,6 +9,15 @@ export default function InverterInfo() {
     <Card
       title="Device Information"
       extra={<Tag color="green">Active</Tag>}
+      style={{ height: "100%", width: "100%" }}
+      styles={{
+        body: {
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        },
+      }}
     >
       <Space orientation="vertical" size={12} style={{ width: "100%" }}>
         <InfoRow label="Model" value="SolarMax Pro 15K" />

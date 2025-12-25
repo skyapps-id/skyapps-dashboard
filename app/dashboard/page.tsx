@@ -77,11 +77,13 @@ export default function DashboardPage() {
 
       {/* INVERTER */}
       <Title level={4}>Inverter Telemetry</Title>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={12}>
+
+      <Row gutter={[16, 16]} align="stretch">
+        <Col xs={24} md={12} style={{ display: "flex" }}>
           <InverterInfo />
         </Col>
-        <Col xs={24} md={12}>
+
+        <Col xs={24} md={12} style={{ display: "flex" }}>
           <PerformanceMetrics />
         </Col>
       </Row>
@@ -89,11 +91,11 @@ export default function DashboardPage() {
       {/* BATTERY */}
       <Title level={4}>BMS Telemetry</Title>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={8}>
+      <Row gutter={[16, 16]} align="stretch">
+        <Col xs={24} md={8} style={{ display: "flex" }}>
           <BatteryStatus />
         </Col>
-        <Col xs={24} md={16}>
+        <Col xs={24} md={16} style={{ display: "flex" }}>
           <CellVoltages />
         </Col>
       </Row>
