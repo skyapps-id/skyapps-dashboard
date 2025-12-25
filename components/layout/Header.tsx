@@ -7,6 +7,8 @@ import {
   LogoutOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
+import { useLogout } from "@/hooks/useLogout";
+import { useRouter } from "next/navigation";
 
 const { Header } = Layout;
 
@@ -17,14 +19,22 @@ export default function HeaderBar({
   mobile?: boolean;
   onMenuClick?: () => void;
 }) {
-  const handleMenuClick = ({ key }: { key: string }) => {
+  const router = useRouter();
+  const { logout } = useLogout();
+
+  const handleMenuClick = async ({ key }: { key: string }) => {
     if (key === "profile") {
-      // router.push("/profile")
-      console.log("Go to profile");
+      router.push("/dashboard/users/profile");
     }
 
     if (key === "logout") {
-      console.log("Logout");
+      try {
+        await logout();
+        router.replace("/login");
+        console.log("Logout berhasil");
+      } catch (err) {
+        console.error("Logout gagal", err);
+      }
     }
   };
 
@@ -69,7 +79,6 @@ export default function HeaderBar({
             onClick={onMenuClick}
           />
         )}
-
         <h3 style={{ margin: 0 }}>Dashboard</h3>
       </div>
 
@@ -83,11 +92,7 @@ export default function HeaderBar({
             icon={<UserOutlined />}
             style={{ backgroundColor: "#1677ff" }}
           />
-          {!mobile && (
-            <span style={{ fontWeight: 500 }}>
-              Admin
-            </span>
-          )}
+          {!mobile && <span style={{ fontWeight: 500 }}>Admin</span>}
         </Space>
       </Dropdown>
     </Header>
