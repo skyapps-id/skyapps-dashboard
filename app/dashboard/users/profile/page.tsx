@@ -18,7 +18,7 @@ export default function UserProfilePage() {
     return (
       <div className="max-w-xl mx-auto mt-20">
         <Alert
-          message="Error"
+          title="Error"
           description={error?.message || 'Failed to fetch user info'}
           type="error"
           showIcon
@@ -30,7 +30,7 @@ export default function UserProfilePage() {
   if (!user?.data) {
     return (
       <div className="max-w-xl mx-auto mt-20">
-        <Alert message="No data found" type="warning" showIcon />
+        <Alert title="No data found" type="warning" showIcon />
       </div>
     );
   }

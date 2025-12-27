@@ -1,10 +1,7 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const cookieStore = await cookies();
-  const refreshCookie = cookieStore.get("refresh_token");
-  const refreshToken = refreshCookie?.value;
+  const { refreshToken } = await req.json();
 
   if (!refreshToken) {
     return NextResponse.json({ success: false, message: "No refresh token" }, { status: 401 });
@@ -17,32 +14,40 @@ export async function POST(req: Request) {
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
 
-  const data = await res.json();
+  const result = await res.json();
 
-  if (!res.ok || !data.success) {
+  if (!res.ok || !result.success) {
     return NextResponse.json({ success: false, message: "Refresh failed" }, { status: 401 });
   }
+  const { token, refresh_token, ...user } = result.data;
 
-  const response = NextResponse.json({ success: true, user: data.data });
-
-  response.cookies.set({
-    name: "access_token",
-    value: data.data.token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60,
+  const response = NextResponse.json({
+    success: true,
+    user,
   });
 
+  const isProd = process.env.NODE_ENV === "production";
+
+  // 🔐 Access Token
+  response.cookies.set({
+    name: "access_token",
+    value: token,
+    httpOnly: isProd,
+    secure: isProd,
+    sameSite: isProd ? "strict" : "lax",
+    path: "/",
+    maxAge: 60 * 60, // 1 jam (sesuaikan exp JWT)
+  });
+
+  // 🔁 Refresh Token
   response.cookies.set({
     name: "refresh_token",
-    value: data.data.refresh_token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    value: refresh_token,
+    httpOnly: isProd,
+    secure: isProd,
+    sameSite: isProd ? "strict" : "lax",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60,
+    maxAge: 60 * 60 * 24 * 7, // 7 hari
   });
 
   return response;

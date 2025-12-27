@@ -1,42 +1,73 @@
-import { NextRequest, NextResponse } from 'next/server';
+import Cookies from "js-cookie";
 
-export async function httpClient(req: NextRequest, url: string, options: RequestInit = {}) {
-  let accessToken = req.cookies.get('access_token')?.value;
-  const refreshToken = req.cookies.get('refresh_token')?.value;
+const API_BASE_URL = "https://skyapps.id/api";
+const isProd = process.env.NODE_ENV === "production";
 
-  if (!accessToken && !refreshToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshToken(): Promise<void> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
   }
 
-  const doFetch = async (token: string) => {
-    return fetch(url, {
-      ...options,
+  isRefreshing = true;
+  const refreshToken = Cookies.get("refresh_token");
+
+  refreshPromise = fetch("/api/auth/refresh", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refreshToken }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        throw new Error("Refresh failed");
+      }
+    })
+    .finally(() => {
+      isRefreshing = false;
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+export async function httpClient<T>(
+  input: string,
+  init: RequestInit = {}
+): Promise<T> {
+  const doFetch = async () => {
+    const token = Cookies.get("access_token");
+
+    return fetch(`${API_BASE_URL}${input}`, {
+      ...init,
+      ...(isProd && { credentials: "include" }),
       headers: {
-        'Authorization': `Bearer ${token}`,
-        ...(options.headers || {}),
+        ...(init.headers || {}),
+        ...(token && { Authorization: `Bearer ${token}` }),
+        "Content-Type": "application/json",
       },
     });
   };
 
-  let response = await doFetch(accessToken!);
+  let res = await doFetch();
 
-  if (response.status === 401 && refreshToken) {
-    const refreshRes = await fetch(`${req.nextUrl.origin}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (!refreshRes.ok) {
-      return NextResponse.json({ error: 'Unauthorized, refresh failed' }, { status: 401 });
+  if (res.status === 401) {
+    try {
+      await refreshToken();
+      res = await doFetch();
+    } catch {
+      Cookies.remove("access_token");
+      throw new Error("Session expired, please login again");
     }
-
-    const refreshData = await refreshRes.json();
-    const newAccessToken = refreshData.user.token;
-
-    response = await doFetch(newAccessToken);
-    return NextResponse.json(await response.json());
   }
 
-  const data = await response.json();
-  return NextResponse.json(data);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API error ${res.status}: ${text}`);
+  }
+
+  return res.json() as Promise<T>;
 }

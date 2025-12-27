@@ -27,13 +27,15 @@ export async function POST(req: Request) {
     user,
   });
 
+  const isProd = process.env.NODE_ENV === "production";
+
   // 🔐 Access Token
   response.cookies.set({
     name: "access_token",
     value: token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    httpOnly: isProd,
+    secure: isProd,
+    sameSite: isProd ? "strict" : "lax",
     path: "/",
     maxAge: 60 * 60, // 1 jam (sesuaikan exp JWT)
   });
@@ -42,9 +44,9 @@ export async function POST(req: Request) {
   response.cookies.set({
     name: "refresh_token",
     value: refresh_token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    httpOnly: isProd,
+    secure: isProd,
+    sameSite: isProd ? "strict" : "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 hari
   });

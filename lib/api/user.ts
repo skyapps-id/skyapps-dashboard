@@ -1,18 +1,6 @@
-import { UserResponse } from '@/types/user';
-
-export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, {
-    ...init,
-    credentials: 'include',
-  });
-
-  if (!res.ok) {
-    throw new Error(`API request failed with status ${res.status}`);
-  }
-
-  return res.json() as Promise<T>;
-}
+import { UserResponse } from "@/types/user";
+import { httpClient } from "@/lib/httpClient";
 
 export const userApi = {
-  info: () => apiFetch<UserResponse>('/api/user'),
+  info: () => httpClient<UserResponse>("/users/info"),
 };
