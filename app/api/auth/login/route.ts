@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { email, password } = await req.json();
 
-  const res = await fetch("https://skyapps.id/api/users/login", {
+  const BASE_URL = process.env.BACKEND_BASE_URL;
+  const res = await fetch(`${BASE_URL}/users/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
